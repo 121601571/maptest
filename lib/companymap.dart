@@ -27,14 +27,11 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-
 class _HomePageState extends State<HomePage> {
   List<dynamic> clist = new List();
   List<Marker> markers = new List();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-
 
   @override
   void initState() {
@@ -44,14 +41,13 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  void getList() async{
-
+  void getList() async {
     Dio dio = new Dio();
     Response response;
 
     try {
       response =
-      await dio.get('https://corp-support.cn' + "/rest/listcompany2" );
+          await dio.get('https://corp-support.cn' + "/rest/listcompany2");
     } on DioError catch (e) {
       if (e.response != Null) {
         print(e.response.data);
@@ -75,12 +71,11 @@ class _HomePageState extends State<HomePage> {
     updateMark();
   }
 
-  Future _showInfo(Map a1){
+  Future _showInfo(Map a1) {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
-
         return CupertinoAlertDialog(
           title: Text('公司信息'),
           content: Column(
@@ -90,16 +85,12 @@ class _HomePageState extends State<HomePage> {
               Text(a1['contact']),
               Text(a1['tel']),
               Text(a1['code']),
-
             ],
-
           ),
-          actions:<Widget>[
-
-
+          actions: <Widget>[
             CupertinoDialogAction(
               child: Text('OK'),
-              onPressed: (){
+              onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
@@ -107,13 +98,11 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
-
-
-
   }
-  void updateMark(){
+
+  void updateMark() {
     markers.clear();
-    for(Map a1 in clist){
+    for (Map a1 in clist) {
       var m1 = Marker(
         anchorPos: AnchorPos.align(AnchorAlign.center),
         height: 30,
@@ -121,54 +110,62 @@ class _HomePageState extends State<HomePage> {
         point: LatLng(a1['lat'], a1['lon']),
         builder: (ctx) => Container(
             child: GestureDetector(
-              onTap: () {
-                //print('123');
-                _showInfo(a1);
-              },
-              child: Icon(Icons.account_balance),
-            )),
-       // builder: (ctx) => Icon(Icons.wifi_tethering),
+          onTap: () {
+            //print('123');
+            _showInfo(a1);
+          },
+          child: Icon(Icons.account_balance),
+        )),
+        // builder: (ctx) => Icon(Icons.wifi_tethering),
       );
       markers.add(m1);
-
-  }
+    }
     setState(() {
       markers = List.from(markers);
     });
-
   }
 
-  double dynSize(int n ){
-    double f1 = n /30;
+  double dynSize(int n) {
+    double f1 = n / 30;
     double r1 = 1 + f1;
-    if (r1 >= 2){
+    if (r1 >= 2) {
       r1 = 2;
     }
     return r1;
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('map test')
-      ),
-      body:
-
-      FlutterMap(
+      appBar: AppBar(title: Text('map test')),
+      body: FlutterMap(
         options: new MapOptions(
-          center:  LatLng(31,121.3),
+          center: LatLng(31, 121.3),
           zoom: 9,
           plugins: [
             MarkerClusterPlugin(),
           ],
         ),
         layers: [
-          TileLayerOptions(
-            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            subdomains: ['a', 'b', 'c'],
+//          TileLayerOptions(
+//            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+//            subdomains: ['a', 'b', 'c'],
+//          ),
+
+          new TileLayerOptions(
+            urlTemplate: "http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
+            subdomains: ['1', '2', '3', '4']
+
           ),
+
+//          new TileLayerOptions(
+//            urlTemplate: "https://api.tiles.mapbox.com/v4/"
+//                "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
+//            additionalOptions: {
+//              'accessToken': 'pk.eyJ1IjoibGl5aTIwMTIyMDEyIiwiYSI6ImNrMmw5c2V1aTAyOTEzYm54ZzhyY2J1bHkifQ.3Fwl4pRiMhJZhdtpuia1dQ',
+//              'id': 'mapbox.streets',
+//            },
+//          ),
 //           MarkerLayerOptions(
 //            markers: [
 //              new Marker(
@@ -187,7 +184,6 @@ class _HomePageState extends State<HomePage> {
 //            ],
 //          ),
 
-
           MarkerClusterLayerOptions(
             maxClusterRadius: 120,
             size: Size(40, 40),
@@ -205,22 +201,19 @@ class _HomePageState extends State<HomePage> {
 //                child: Text(markers.length.toString()),
 //                onPressed: null,
 //              );
-             return Transform.scale(scale: dynSize(markers.length),
-              child: FloatingActionButton(
-                onPressed: () {
-                  print('cluster');
-                },
-                child: Text(markers.length.toString()),
-
-              ),
-             );
-
+              return Transform.scale(
+                scale: dynSize(markers.length),
+                child: FloatingActionButton(
+                  onPressed: () {
+                    print('cluster');
+                  },
+                  child: Text(markers.length.toString()),
+                ),
+              );
             },
           ),
         ],
       ),
     );
-
-
   }
 }
